@@ -34,8 +34,9 @@ def main():
             "--camid", "0",
             "-f", os.path.join("exps", "example", "mot", "yolox_tiny_cpu.py"),
             "-c", os.path.join("pretrained", "bytetrack_tiny_mot17.pth.tar"),
-            "--device", "cpu",
-            "--save_result",
+            "--device", "gpu",
+            "--fp16",
+            "--tsize", "416",
             "--track_thresh", "0.5",
             "--conf", "0.25",
             "--min_box_area", "100"
@@ -47,8 +48,9 @@ def main():
             "--path", os.path.join("videos", "palace.mp4"),
             "-f", os.path.join("exps", "example", "mot", "yolox_tiny_cpu.py"),
             "-c", os.path.join("pretrained", "bytetrack_tiny_mot17.pth.tar"),
-            "--device", "cpu",
-            "--save_result",
+            "--device", "gpu",
+            "--fp16",
+            "--tsize", "416",
             "--track_thresh", "0.5",
             "--conf", "0.25",
             "--min_box_area", "100"
