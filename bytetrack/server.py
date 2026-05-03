@@ -155,8 +155,19 @@ async def websocket_endpoint(websocket: WebSocket):
 @app.post("/update")
 async def update_status(data: dict):
     global current_data
-    current_data["seated"] = data.get("seated", current_data["seated"])
-    current_data["standing"] = data.get("standing", current_data["standing"])
+    
+    if "passengers" in data:
+        total = data["passengers"]
+        cap = int(driver_state.get("capacity", 32))
+        if total > cap:
+            current_data["seated"] = cap
+            current_data["standing"] = total - cap
+        else:
+            current_data["seated"] = total
+            current_data["standing"] = 0
+    else:
+        current_data["seated"] = data.get("seated", current_data["seated"])
+        current_data["standing"] = data.get("standing", current_data["standing"])
     if "latitude" in data: current_data["latitude"] = data["latitude"]
     if "longitude" in data: current_data["longitude"] = data["longitude"]
     

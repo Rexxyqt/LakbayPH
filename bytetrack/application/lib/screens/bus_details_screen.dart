@@ -276,22 +276,53 @@ class BusDetailsScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: ValueListenableBuilder<int>(
-                      valueListenable: bus.passengerCountNotifier,
-                      builder: (context, seated, _) => _buildSubStat('Seated', '$seated / ${bus.capacity}'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ValueListenableBuilder<int>(
-                      valueListenable: bus.standingCountNotifier,
-                      builder: (context, standing, _) => _buildSubStat('Standing', '$standing'),
-                    ),
-                  ),
-                ],
+              ValueListenableBuilder<int>(
+                valueListenable: bus.passengerCountNotifier,
+                builder: (context, seated, _) => ValueListenableBuilder<int>(
+                  valueListenable: bus.standingCountNotifier,
+                  builder: (context, standing, _) {
+                    final total = seated + standing;
+                    if (total >= bus.capacity) {
+                      return Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.red),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.warning_amber_rounded, color: Colors.red),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text('CAUTION: Bus is over capacity. ${total - bus.capacity} standing passengers detected.', 
+                                style: GoogleFonts.outfit(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12)),
+                            ),
+                          ],
+                        ),
+                      );
+                    } else {
+                      return Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.green.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.green),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.check_circle_outline, color: Colors.green),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text('Seats available', 
+                                style: GoogleFonts.outfit(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 12)),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                  },
+                ),
               ),
               const SizedBox(height: 16),
               ValueListenableBuilder<int>(

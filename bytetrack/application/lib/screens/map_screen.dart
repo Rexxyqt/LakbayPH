@@ -794,8 +794,10 @@ class _MapScreenState extends State<MapScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       _buildInfoItem(Icons.people_alt_outlined, 'Passengers', '${bus.passengerCount + bus.standingCount}/${bus.capacity}'),
-                      _buildInfoItem(Icons.airline_seat_recline_normal, 'Seated', '${bus.passengerCount}'),
-                      _buildInfoItem(Icons.directions_walk, 'Standing', '${bus.standingCount}'),
+                      if ((bus.passengerCount + bus.standingCount) >= bus.capacity)
+                         _buildInfoItem(Icons.warning_amber_rounded, 'Caution', '${(bus.passengerCount + bus.standingCount) - bus.capacity} Standing'),
+                      if ((bus.passengerCount + bus.standingCount) < bus.capacity)
+                         _buildInfoItem(Icons.event_seat, 'Status', 'Seats Available'),
                       ElevatedButton(
                         onPressed: () {
                           setState(() => _isMapView = true);

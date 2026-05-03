@@ -69,7 +69,7 @@ class _DriverDashboardState extends State<DriverDashboard> {
   Future<void> _toggleTrip() async {
     final endpoint = _isOnTrip ? 'end_trip' : 'start_trip';
     try {
-      await http.post(Uri.parse('${AppConfig.baseUrl}/$endpoint'));
+      await http.post(Uri.parse('${AppConfig.baseUrl}/$endpoint')).timeout(const Duration(seconds: 3));
       
       if (!_isOnTrip) {
         await _startLocationUpdates();
@@ -81,8 +81,17 @@ class _DriverDashboardState extends State<DriverDashboard> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Connection Error')),
+          SnackBar(content: Text(
+            _isOnTrip 
+              ? 'Server unreachable. Trip ended locally.' 
+              : 'Connection Error. Cannot start trip.'
+          )),
         );
+      }
+      // Force end trip locally if they were trying to end it
+      if (_isOnTrip) {
+        await _stopLocationUpdates();
+        setState(() => _isOnTrip = false);
       }
     }
   }
@@ -120,7 +129,7 @@ class _DriverDashboardState extends State<DriverDashboard> {
   Future<void> _manualPin() async {
     try {
       final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.best,
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.best),
       );
       await _sendLocationToServer(position);
       if (mounted) {
@@ -280,7 +289,7 @@ class _DriverDashboardState extends State<DriverDashboard> {
                                 if (_isOnTrip) _manualPin(); // Update immediately
                               },
                               activeThumbColor: Colors.blue,
-                              inactiveTrackColor: Colors.red.withOpacity(0.5),
+                              inactiveTrackColor: Colors.red.withValues(alpha: 0.5),
                               inactiveThumbColor: Colors.red,
                             ),
                           ],
@@ -341,16 +350,55 @@ class _DriverDashboardState extends State<DriverDashboard> {
                       ],
                     ),
                     const SizedBox(height: 20),
-                    Text('$total', style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold)),
-                    const Text('Total Passengers', style: TextStyle(color: Colors.grey)),
-                    const SizedBox(height: 20),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
                       children: [
-                        Expanded(child: _buildStatCard('Seated', _seatedCount, _capacity)),
-                        const SizedBox(width: 10),
-                        Expanded(child: _buildStatCard('Standing', _standingCount, _capacity)),
+                        Text('$total', style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold)),
+                        Text(' / $_capacity', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.grey)),
                       ],
                     ),
+                    const Text('Total Passengers', style: TextStyle(color: Colors.grey)),
+                    const SizedBox(height: 20),
+                    if (total >= _capacity)
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.red),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.warning_amber_rounded, color: Colors.red),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text('CAUTION: Bus is over capacity. ${total - _capacity} standing passengers detected.', 
+                                style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12)),
+                            ),
+                          ],
+                        ),
+                      )
+                    else
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.green.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.green),
+                        ),
+                        child: Row(
+                          children: const [
+                            Icon(Icons.check_circle_outline, color: Colors.green),
+                            SizedBox(width: 10),
+                            Expanded(
+                              child: Text('Seats available', 
+                                style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 12)),
+                            ),
+                          ],
+                        ),
+                      ),
                     const SizedBox(height: 20),
                     LinearProgressIndicator(
                       value: progress,
@@ -367,7 +415,7 @@ class _DriverDashboardState extends State<DriverDashboard> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFD700).withOpacity(0.3),
+                  color: const Color(0xFFFFD700).withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: const Color(0xFFFFD700)),
                 ),
@@ -390,20 +438,4 @@ class _DriverDashboardState extends State<DriverDashboard> {
   );
 }
 
-  Widget _buildStatCard(String label, int count, int cap) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        children: [
-          Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-          Text('$count', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          Text('/ $cap seats', style: const TextStyle(fontSize: 10, color: Colors.grey)),
-        ],
-      ),
-    );
-  }
 }

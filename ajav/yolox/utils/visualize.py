@@ -53,30 +53,50 @@ def plot_tracking(image, tlwhs, obj_ids, scores=None, frame_id=0, fps=0., ids2=N
     im = np.ascontiguousarray(np.copy(image))
     im_h, im_w = im.shape[:2]
 
-    top_view = np.zeros([im_w, im_w, 3], dtype=np.uint8) + 255
+    # Lakbay PH Theme Colors
+    yellow = (0, 215, 255) # BGR
+    black = (0, 0, 0)
+    white = (255, 255, 255)
+    green = (0, 200, 0)
 
-    #text_scale = max(1, image.shape[1] / 1600.)
-    #text_thickness = 2
-    #line_thickness = max(1, int(image.shape[1] / 500.))
-    text_scale = 2
-    text_thickness = 2
-    line_thickness = 3
+    # Draw Lakbay PH Header Banner (Yellow)
+    header_h = 40
+    cv2.rectangle(im, (0, 0), (im_w, header_h), yellow, -1)
+    
+    # Header Text
+    cv2.putText(im, 'LAKBAY PH - LIVE PASSENGER TRACKING', (15, 28), 
+                cv2.FONT_HERSHEY_SIMPLEX, 0.7, black, thickness=2)
 
-    radius = max(5, int(im_w/140.))
-    cv2.putText(im, 'frame: %d fps: %.2f num: %d' % (frame_id, fps, len(tlwhs)),
-                (0, int(15 * text_scale)), cv2.FONT_HERSHEY_PLAIN, 2, (0, 0, 255), thickness=2)
+    # Draw Info Banner (Black)
+    info_w = 400
+    info_h = 30
+    cv2.rectangle(im, (0, im_h - info_h), (info_w, im_h), black, -1)
+    
+    # Info Text
+    info_text = 'FRAME: %d | FPS: %.1f | PASSENGERS: %d' % (frame_id, fps, len(tlwhs))
+    cv2.putText(im, info_text, (10, im_h - 10), 
+                cv2.FONT_HERSHEY_SIMPLEX, 0.5, white, thickness=1)
 
     for i, tlwh in enumerate(tlwhs):
         x1, y1, w, h = tlwh
         intbox = tuple(map(int, (x1, y1, x1 + w, y1 + h)))
         obj_id = int(obj_ids[i])
-        id_text = '{}'.format(int(obj_id))
-        if ids2 is not None:
-            id_text = id_text + ', {}'.format(int(ids2[i]))
-        color = get_color(abs(obj_id))
-        cv2.rectangle(im, intbox[0:2], intbox[2:4], color=color, thickness=line_thickness)
-        cv2.putText(im, id_text, (intbox[0], intbox[1]), cv2.FONT_HERSHEY_PLAIN, text_scale, (0, 0, 255),
-                    thickness=text_thickness)
+        id_text = 'Pass: {}'.format(int(obj_id))
+        
+        # Bounding box
+        line_thickness = 1
+        cv2.rectangle(im, intbox[0:2], intbox[2:4], color=green, thickness=line_thickness)
+        
+        # Text background
+        text_scale = 0.5
+        text_thickness = 1
+        (txt_w, txt_h), _ = cv2.getTextSize(id_text, cv2.FONT_HERSHEY_SIMPLEX, text_scale, text_thickness)
+        cv2.rectangle(im, (intbox[0], intbox[1] - txt_h - 6), (intbox[0] + txt_w + 6, intbox[1]), green, -1)
+        
+        # Passenger ID Text
+        cv2.putText(im, id_text, (intbox[0] + 3, intbox[1] - 3), 
+                    cv2.FONT_HERSHEY_SIMPLEX, text_scale, white, thickness=text_thickness)
+        
     return im
 
 

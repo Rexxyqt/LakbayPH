@@ -17,20 +17,42 @@ def main():
     
     env = os.environ.copy()
     env["PYTHONPATH"] = ajav_dir
-    
+    print("\n" + "="*50)
+    print(" " * 10 + "LAKBAY PH TRACKING SYSTEM")
+    print("="*50)
+    print("Please choose your video source:")
+    print("  1. Demo Video (palace.mp4)")
+    print("  2. Live Webcam")
+    choice = input("\nEnter choice (1 or 2): ").strip()
+
     demo_script = os.path.join("tools", "demo_track.py")
     
-    tracking_args = [
-        sys.executable, demo_script, "video",
-        "--path", os.path.join("videos", "palace.mp4"),
-        "-f", os.path.join("exps", "example", "mot", "yolox_tiny_cpu.py"),
-        "-c", os.path.join("pretrained", "bytetrack_tiny_mot17.pth.tar"),
-        "--device", "cpu",
-        "--save_result",
-        "--track_thresh", "0.5",
-        "--conf", "0.25",
-        "--min_box_area", "100"
-    ]
+    if choice == '2':
+        print("Starting Live Webcam...")
+        tracking_args = [
+            sys.executable, demo_script, "webcam",
+            "--camid", "0",
+            "-f", os.path.join("exps", "example", "mot", "yolox_tiny_cpu.py"),
+            "-c", os.path.join("pretrained", "bytetrack_tiny_mot17.pth.tar"),
+            "--device", "cpu",
+            "--save_result",
+            "--track_thresh", "0.5",
+            "--conf", "0.25",
+            "--min_box_area", "100"
+        ]
+    else:
+        print("Starting Demo Video...")
+        tracking_args = [
+            sys.executable, demo_script, "video",
+            "--path", os.path.join("videos", "palace.mp4"),
+            "-f", os.path.join("exps", "example", "mot", "yolox_tiny_cpu.py"),
+            "-c", os.path.join("pretrained", "bytetrack_tiny_mot17.pth.tar"),
+            "--device", "cpu",
+            "--save_result",
+            "--track_thresh", "0.5",
+            "--conf", "0.25",
+            "--min_box_area", "100"
+        ]
 
     tracking_process = subprocess.Popen(tracking_args, env=env, cwd=ajav_dir)
 

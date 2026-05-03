@@ -323,7 +323,9 @@ def imageflow_demo(predictor, vis_folder, current_time, args):
                     except Exception as e:
                         logger.warning(f"Local server push failed: {e}")
                 timer.toc()
-                online_im = img_info['raw_img']
+                online_im = plot_tracking(
+                    img_info['raw_img'], [], [], frame_id=frame_id + 1, fps=1. / max(1e-5, timer.average_time)
+                )
             if args.save_result:
                 vid_writer.write(online_im)
             cv2.imshow("ByteTrack Demo", online_im)
