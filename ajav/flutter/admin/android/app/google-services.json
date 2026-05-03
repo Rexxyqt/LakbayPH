@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "841958171972",
+    "project_id": "iot-seat-occupancy",
+    "storage_bucket": "iot-seat-occupancy.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:841958171972:android:ea25846e8d0ae22d90a311",
+        "android_client_info": {
+          "package_name": "com.example.admin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOfFKjP6XjCqItHSF7GjO7km18eakT6I0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:841958171972:android:d36faf3d1748405c90a311",
+        "android_client_info": {
+          "package_name": "com.example.commuters"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOfFKjP6XjCqItHSF7GjO7km18eakT6I0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

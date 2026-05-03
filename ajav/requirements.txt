@@ -1,0 +1,29 @@
+# Build Tools
+cmake
+cython
+
+# Core Dependencies
+numpy
+torch>=1.7
+torchvision>=0.10.0
+opencv-python
+loguru
+scikit-image
+tqdm
+Pillow
+thop
+ninja
+tabulate
+tensorboard
+lapx
+motmetrics
+filterpy
+h5py
+
+# Windows Specific / Extra
+gdown
+
+# ONNX Support
+onnx
+onnxruntime
+requests
